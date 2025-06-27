@@ -3,8 +3,7 @@ const cacheFiles = [
   "./index.html",
   "./app.js",
   "./manifest.json",
-  "./xlsx.full.min.js",
-  "./icon.png"
+  "./xlsx.full.min.js"
 ];
 
 self.addEventListener("install", event => {
