@@ -10,9 +10,6 @@
 
   <!-- Bootstrap RTL for Hebrew layout -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" />
-
-  <!-- Choices.js CSS (for custom-styled dropdowns) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 </head>
 <body class="p-4 bg-light">
   <div class="container">
@@ -24,8 +21,8 @@
         <input class="form-control mb-2" placeholder="תאריך" id="תאריך" />
 
         <!-- אוגדה -->
-        <select id="אוגדה" class="form-control mb-2">
-          <option value="">בחר אוגדה</option>
+        <select class="form-control mb-2" id="אוגדה">
+          <option value="" disabled selected>בחר אוגדה</option>
           <option>בורדו 252</option>
           <option>36 סגול</option>
           <option>98 ורוד</option>
@@ -37,8 +34,8 @@
         <input class="form-control mb-2" placeholder="יחידה" id="יחידה" />
 
         <!-- התראה -->
-        <select id="התראה" class="form-control mb-2">
-          <option value="">בחר התראה</option>
+        <select class="form-control mb-2" id="התראה">
+          <option value="" disabled selected>בחר התראה</option>
           <option>רותם</option>
           <option>ברק</option>
           <option>נוגה</option>
@@ -51,8 +48,8 @@
         <input class="form-control mb-2" placeholder="מספר צופר" id="מספר צופר" />
 
         <!-- מיגון -->
-        <select id="מיגון" class="form-control mb-2">
-          <option value="">בחר מיגון</option>
+        <select class="form-control mb-2" id="מיגון">
+          <option value="" disabled selected>בחר מיגון</option>
           <option>קיט כפול</option>
           <option>קיט בודד</option>
           <option>רחבעם</option>
@@ -89,18 +86,6 @@
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js');
     }
-  </script>
-
-  <!-- Choices.js JS -->
-  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-
-  <!-- Initialize dropdowns -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      new Choices("#אוגדה", { placeholderValue: "בחר אוגדה", searchEnabled: false });
-      new Choices("#התראה", { placeholderValue: "בחר התראה", searchEnabled: false });
-      new Choices("#מיגון", { placeholderValue: "בחר מיגון", searchEnabled: false });
-    });
   </script>
 </body>
 </html>
