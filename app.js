@@ -1,73 +1,140 @@
-const headers = [
-  "תאריך",
-  "אוגדה",
-  "יחידה",
-  "התראה",
-  "מספר צופר",
-  "מיגון",
-  "כמות",
-  "שם המפקד",
-  "טלפון",
-];
+// Initialize workbook and state
+let workbook = XLSX.utils.book_new();
+let sheetName = "Sheet1";
+let headers = ["תאריך", "אוגדה", "יחידה", "התראה", "מספר צופר", "מיגון", "כמות", "שם המפקד", "טלפון"];
+let rows = JSON.parse(localStorage.getItem("rapidreport_data")) || [];
 
-const rows = JSON.parse(localStorage.getItem("rapidreport_data") || "[]");
-const sheetName = "דיווחים";
-const workbook = XLSX.utils.book_new();
+// Render the saved rows into a table (for inspect view)
+// Initial sort state: sort by date ascending
+let sortDirection = "asc";
 
-// Render the data table
+// Sort rows by the "תאריך" field (auto-run before render)
+function sortRowsByDate() {
+  rows.sort((a, b) => {
+    const dateA = parseDate(a["תאריך"]);
+    const dateB = parseDate(b["תאריך"]);
+    return sortDirection === "asc" ? dateA - dateB : dateB - dateA;
+  });
+}
+
+// Parse "DD-MM-YYYY" string into a Date object
+function parseDate(str) {
+  if (!str) return new Date(0);
+  const parts = str.split("-");
+  return new Date(parts[2], parts[1] - 1, parts[0]); // YYYY, MM-1, DD
+}
+
+// Toggle sort direction and re-render
+function toggleSortDirection() {
+  sortDirection = sortDirection === "asc" ? "desc" : "asc";
+  renderTable();
+}
+
+// Render table, now auto-sorted by date
 function renderTable() {
+  sortRowsByDate(); // always sort before displaying
+
   const container = document.getElementById("inspectTable");
   container.innerHTML = "";
 
+  if (rows.length === 0) {
+    container.innerHTML = "<p>אין נתונים להצגה.</p>";
+    return;
+  }
+
   const table = document.createElement("table");
-  table.className = "table table-bordered table-sm text-center align-middle";
-  table.style.fontSize = "0.75rem";
+  table.className = "table table-bordered table-striped text-center align-middle";
 
   const thead = document.createElement("thead");
-  const headRow = document.createElement("tr");
+  const headerRow = document.createElement("tr");
 
-  // Header row
-  headers.forEach(header => {
+  headers.forEach(h => {
     const th = document.createElement("th");
-    th.textContent = header;
-    headRow.appendChild(th);
+    th.textContent = h;
+    headerRow.appendChild(th);
   });
 
-  // Add "פעולות" column
-  const actionTh = document.createElement("th");
-  actionTh.textContent = "פעולות";
-  headRow.appendChild(actionTh);
-  thead.appendChild(headRow);
+  // Replace "תאריך" header with sort toggle button
+  const dateIndex = headers.indexOf("תאריך");
+  const dateTh = headerRow.children[dateIndex];
+  dateTh.innerHTML = ""; // Clear the header cell
+  const toggleBtn = document.createElement("button");
+  toggleBtn.textContent = sortDirection === "asc" ? "⬇ תאריך" : "⬆ תאריך";
+  toggleBtn.className = "btn btn-sm btn-outline-secondary";
+  toggleBtn.onclick = toggleSortDirection;
+  dateTh.appendChild(toggleBtn);
+
+  // Add "פעולה" header column after all data headers (including modified "תאריך")
+  const thAction = document.createElement("th");
+  thAction.textContent = "פעולות";
+  headerRow.appendChild(thAction);
+
+  thead.appendChild(headerRow);
   table.appendChild(thead);
 
-  // Table body
   const tbody = document.createElement("tbody");
 
   rows.forEach((row, rowIndex) => {
     const tr = document.createElement("tr");
 
-    headers.forEach(header => {
+    headers.forEach(h => {
       const td = document.createElement("td");
       const input = document.createElement("input");
-      input.value = row[header];
+      input.type = "text";
+      input.value = row[h];
       input.className = "form-control form-control-sm text-center";
-      input.style.padding = "0.25rem";
-      input.style.fontSize = "0.75rem";
-      input.addEventListener("input", () => {
-        row[header] = input.value;
-        localStorage.setItem("rapidreport_data", JSON.stringify(rows));
-      });
+      input.disabled = true;
+      input.dataset.key = h;
       td.appendChild(input);
       tr.appendChild(td);
     });
 
-    // Actions (delete + edit)
-    const tdActions = document.createElement("td");
-    tdActions.className = "text-center";
+    // Create action buttons (edit/save/delete)
+    const tdAction = document.createElement("td");
+
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "✏️";
+    editBtn.className = "btn btn-sm btn-warning";
+
+    const saveBtn = document.createElement("button");
+    saveBtn.textContent = "💾";
+    saveBtn.className = "btn btn-sm btn-success";
+    saveBtn.style.display = "none";
 
     const deleteBtn = document.createElement("button");
-    deleteBtn.innerHTML = "❌";
-    deleteBtn.className = "btn btn-danger btn-sm me-1";
+    deleteBtn.textContent = "❌";
+    deleteBtn.className = "btn btn-sm";
+    deleteBtn.style.backgroundColor = "black";
+    deleteBtn.style.color = "white";
+
+    // Group buttons in one div
+    const buttonWrapper = document.createElement("div");
+    buttonWrapper.className = "d-flex justify-content-center gap-2";
+    buttonWrapper.appendChild(editBtn);
+    buttonWrapper.appendChild(saveBtn);
+    buttonWrapper.appendChild(deleteBtn);
+    tdAction.appendChild(buttonWrapper);
+    tr.appendChild(tdAction);
+
+    // Button actions
+    editBtn.addEventListener("click", () => {
+      tr.querySelectorAll("input").forEach(i => (i.disabled = false));
+      editBtn.style.display = "none";
+      saveBtn.style.display = "inline-block";
+    });
+
+    saveBtn.addEventListener("click", () => {
+      const updatedRow = {};
+      tr.querySelectorAll("input").forEach(input => {
+        updatedRow[input.dataset.key] = input.value.trim();
+        input.disabled = true;
+      });
+      rows[rowIndex] = updatedRow;
+      localStorage.setItem("rapidreport_data", JSON.stringify(rows));
+      editBtn.style.display = "inline-block";
+      saveBtn.style.display = "none";
+    });
+
     deleteBtn.addEventListener("click", () => {
       if (confirm("האם אתה בטוח שברצונך למחוק שורה זו?")) {
         rows.splice(rowIndex, 1);
@@ -75,22 +142,6 @@ function renderTable() {
         renderTable();
       }
     });
-
-    const editBtn = document.createElement("button");
-    editBtn.innerHTML = "✏️";
-    editBtn.className = "btn btn-warning btn-sm";
-    editBtn.addEventListener("click", () => {
-      const selected = rows[rowIndex];
-      headers.forEach(h => {
-        document.getElementById(h).value = selected[h];
-      });
-      document.getElementById("inspectView").style.display = "none";
-      document.getElementById("formView").style.display = "block";
-    });
-
-    tdActions.appendChild(deleteBtn);
-    tdActions.appendChild(editBtn);
-    tr.appendChild(tdActions);
 
     tbody.appendChild(tr);
   });
