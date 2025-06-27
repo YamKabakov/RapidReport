@@ -1,14 +1,22 @@
-// Initialize workbook and state
+// Initialize a new Excel workbook
 let workbook = XLSX.utils.book_new();
 let sheetName = "Sheet1";
-let headers = ["תאריך", "אוגדה", "יחידה", "התראה", "מספר צופר", "מיגון", "כמות", "שם המפקד", "טלפון"];
+
+// Define the table/form fields (in Hebrew)
+let headers = [
+  "תאריך", "אוגדה", "יחידה", "התראה", "מספר צופר",
+  "מיגון", "כמות", "שם המפקד", "טלפון"
+];
+
+// Load existing data from localStorage or start with empty array
 let rows = JSON.parse(localStorage.getItem("rapidreport_data")) || [];
 
-// Render the saved rows into a table (for inspect view)
-// Initial sort state: sort by date ascending
+// Initial sort direction for the date column
 let sortDirection = "asc";
 
-// Sort rows by the "תאריך" field (auto-run before render)
+// -------------------------------
+// Sorting logic for date column
+// -------------------------------
 function sortRowsByDate() {
   rows.sort((a, b) => {
     const dateA = parseDate(a["תאריך"]);
@@ -17,22 +25,24 @@ function sortRowsByDate() {
   });
 }
 
-// Parse "DD-MM-YYYY" string into a Date object
+// Convert "DD-MM-YYYY" string to JS Date object
 function parseDate(str) {
-  if (!str) return new Date(0);
+  if (!str) return new Date(0); // fallback if empty
   const parts = str.split("-");
-  return new Date(parts[2], parts[1] - 1, parts[0]); // YYYY, MM-1, DD
+  return new Date(parts[2], parts[1] - 1, parts[0]); // year, month-1, day
 }
 
-// Toggle sort direction and re-render
+// Toggle date sort direction and re-render
 function toggleSortDirection() {
   sortDirection = sortDirection === "asc" ? "desc" : "asc";
   renderTable();
 }
 
-// Render table, now auto-sorted by date
+// --------------------------------
+// Renders the table view of data
+// --------------------------------
 function renderTable() {
-  sortRowsByDate(); // always sort before displaying
+  sortRowsByDate(); // Always sort by date before rendering
 
   const container = document.getElementById("inspectTable");
   container.innerHTML = "";
@@ -54,17 +64,17 @@ function renderTable() {
     headerRow.appendChild(th);
   });
 
-  // Replace "תאריך" header with sort toggle button
+  // Add toggleable date header
   const dateIndex = headers.indexOf("תאריך");
   const dateTh = headerRow.children[dateIndex];
-  dateTh.innerHTML = ""; // Clear the header cell
+  dateTh.innerHTML = "";
   const toggleBtn = document.createElement("button");
   toggleBtn.textContent = sortDirection === "asc" ? "⬇ תאריך" : "⬆ תאריך";
   toggleBtn.className = "btn btn-sm btn-outline-secondary";
   toggleBtn.onclick = toggleSortDirection;
   dateTh.appendChild(toggleBtn);
 
-  // Add "פעולה" header column after all data headers (including modified "תאריך")
+  // Add action column header
   const thAction = document.createElement("th");
   thAction.textContent = "פעולות";
   headerRow.appendChild(thAction);
@@ -79,17 +89,43 @@ function renderTable() {
 
     headers.forEach(h => {
       const td = document.createElement("td");
-      const input = document.createElement("input");
-      input.type = "text";
-      input.value = row[h];
-      input.className = "form-control form-control-sm text-center";
-      input.disabled = true;
-      input.dataset.key = h;
+      let input;
+
+      const isDropdown = ["אוגדה", "התראה", "מיגון"].includes(h);
+      if (isDropdown) {
+        input = document.createElement("select");
+        input.className = "form-select form-select-sm text-center";
+        input.disabled = true;
+        input.dataset.key = h;
+
+        const optionsMap = {
+          "אוגדה": ["בורדו 252", "36 סגול", "98 ורוד", "99 תכלת", "162 ירוק בהיר", "143 כתום"],
+          "התראה": ["רותם", "ברק", "נוגה", "רעם", "רוני", "צופר קבע", "נופר"],
+          "מיגון": ["קיט כפול", "קיט בודד", "רחבעם", "יונתן", "מובל מים", "(בחירת כמות)"]
+        };
+
+        optionsMap[h].forEach(optText => {
+          const opt = document.createElement("option");
+          opt.value = optText;
+          opt.textContent = optText;
+          if (optText === row[h]) opt.selected = true;
+          input.appendChild(opt);
+        });
+
+      } else {
+        input = document.createElement("input");
+        input.type = "text";
+        input.value = row[h];
+        input.className = "form-control form-control-sm text-center";
+        input.dataset.key = h;
+        input.disabled = true;
+      }
+
       td.appendChild(input);
       tr.appendChild(td);
     });
 
-    // Create action buttons (edit/save/delete)
+    // Create action buttons
     const tdAction = document.createElement("td");
 
     const editBtn = document.createElement("button");
@@ -107,7 +143,7 @@ function renderTable() {
     deleteBtn.style.backgroundColor = "black";
     deleteBtn.style.color = "white";
 
-    // Group buttons in one div
+    // Button group
     const buttonWrapper = document.createElement("div");
     buttonWrapper.className = "d-flex justify-content-center gap-2";
     buttonWrapper.appendChild(editBtn);
@@ -116,16 +152,17 @@ function renderTable() {
     tdAction.appendChild(buttonWrapper);
     tr.appendChild(tdAction);
 
-    // Button actions
+    // Edit button logic
     editBtn.addEventListener("click", () => {
-      tr.querySelectorAll("input").forEach(i => (i.disabled = false));
+      tr.querySelectorAll("input, select").forEach(i => (i.disabled = false));
       editBtn.style.display = "none";
       saveBtn.style.display = "inline-block";
     });
 
+    // Save button logic
     saveBtn.addEventListener("click", () => {
       const updatedRow = {};
-      tr.querySelectorAll("input").forEach(input => {
+      tr.querySelectorAll("input, select").forEach(input => {
         updatedRow[input.dataset.key] = input.value.trim();
         input.disabled = true;
       });
@@ -135,6 +172,7 @@ function renderTable() {
       saveBtn.style.display = "none";
     });
 
+    // Delete button logic
     deleteBtn.addEventListener("click", () => {
       if (confirm("האם אתה בטוח שברצונך למחוק שורה זו?")) {
         rows.splice(rowIndex, 1);
@@ -150,7 +188,9 @@ function renderTable() {
   container.appendChild(table);
 }
 
-// Save form data to localStorage
+// --------------------------------------------
+// Handle form submission and saving to storage
+// --------------------------------------------
 document.getElementById("reportForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
@@ -173,38 +213,42 @@ document.getElementById("reportForm").addEventListener("submit", function (e) {
   alert("נשמר בהצלחה!");
   document.getElementById("reportForm").reset();
 
-  // Reset date field to today
+  // Pre-fill today's date again
   const today = new Date();
   const formatted = today.toISOString().split("T")[0];
   const hebrewFormatted = formatted.split("-").reverse().join("-");
   document.getElementById("תאריך").value = hebrewFormatted;
 });
 
-// Download the Excel file with all rows
+// -------------------------------------
+// Export stored data as Excel download
+// -------------------------------------
 document.getElementById("downloadBtn").addEventListener("click", function () {
   const worksheet = XLSX.utils.json_to_sheet(rows, { header: headers });
   XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
   const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
   const blob = new Blob([wbout], { type: "application/octet-stream" });
+
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = "rapidreport.xlsx";
   a.click();
 });
 
-// Switch to table view
+// -------------------------------------
+// Toggle views between form and table
+// -------------------------------------
 document.getElementById("inspectBtn").addEventListener("click", function () {
   renderTable();
   document.getElementById("formView").style.display = "none";
   document.getElementById("inspectView").style.display = "block";
 });
 
-// Back to form view
 document.getElementById("backBtn").addEventListener("click", function () {
   document.getElementById("inspectView").style.display = "none";
   document.getElementById("formView").style.display = "block";
 
-  // Restore today's date if needed
+  // Pre-fill today's date again if empty
   const dateField = document.getElementById("תאריך");
   if (!dateField.value) {
     const today = new Date();
@@ -214,7 +258,9 @@ document.getElementById("backBtn").addEventListener("click", function () {
   }
 });
 
-// Pre-fill today's date on load
+// -------------------------------------
+// On page load, pre-fill current date
+// -------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
   const dateField = document.getElementById("תאריך");
   if (!dateField.value) {
