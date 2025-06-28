@@ -14,7 +14,7 @@
 <body class="p-4 bg-light">
   <!-- Version label in top-right corner -->
   <div style="position: absolute; top: 0.75rem; right: 1rem; z-index: 9999;">
-    <small style="font-size: 0.75rem; color: gray;">1.0.9</small>
+    <small style="font-size: 0.75rem; color: gray;">1.0.10</small>
   </div>
 
   <div class="container">
@@ -25,10 +25,10 @@
       <h1 class="text-center mb-3" style="color: green; font-weight: bold;">RAPIDREPORT📝</h1>
 
       <form id="reportForm" class="mb-3">
-        <input class="form-control mb-2 text-end" placeholder="תאריך" id="תאריך" />
+        <input class="form-control mb-2" style="text-align: right;" placeholder="תאריך" id="תאריך" />
 
         <!-- אוגדה -->
-        <select class="form-control mb-2 text-end" id="אוגדה">
+        <select class="form-control mb-2" style="text-align: right;" id="אוגדה">
           <option value="" disabled selected>בחר אוגדה</option>
           <option>בורדו 252</option>
           <option>36 סגול</option>
@@ -38,10 +38,10 @@
           <option>143 כתום</option>
         </select>
 
-        <input class="form-control mb-2 text-end" placeholder="יחידה" id="יחידה" />
+        <input class="form-control mb-2" style="text-align: right;" placeholder="יחידה" id="יחידה" />
 
         <!-- התראה -->
-        <select class="form-control mb-2 text-end" id="התראה">
+        <select class="form-control mb-2" style="text-align: right;" id="התראה">
           <option value="" disabled selected>בחר התראה</option>
           <option>רותם</option>
           <option>ברק</option>
@@ -52,10 +52,10 @@
           <option>נופר</option>
         </select>
 
-        <input class="form-control mb-2 text-end" placeholder="מספר צופר" id="מספר צופר" type="number" />
+        <input class="form-control mb-2" style="text-align: right;" placeholder="מספר צופר" id="מספר צופר" type="number" />
 
         <!-- מיגון -->
-        <select class="form-control mb-2 text-end" id="מיגון">
+        <select class="form-control mb-2" style="text-align: right;" id="מיגון">
           <option value="" disabled selected>בחר מיגון</option>
           <option>קיט כפול</option>
           <option>קיט בודד</option>
@@ -65,9 +65,9 @@
           <option>(בחירת כמות)</option>
         </select>
 
-        <input class="form-control mb-2 text-end" placeholder="כמות" id="כמות" type="number" />
-        <input class="form-control mb-2 text-end" placeholder="שם המפקד" id="שם המפקד" pattern="[A-Za-zא-ת]+" title="Text only" />
-        <input class="form-control mb-3 text-end" placeholder="טלפון" id="טלפון" type="number" />
+        <input class="form-control mb-2" style="text-align: right;" placeholder="כמות" id="כמות" type="number" />
+        <input class="form-control mb-2" style="text-align: right;" placeholder="שם המפקד" id="שם המפקד" pattern="[A-Za-zא-ת]+" title="Text only" />
+        <input class="form-control mb-3" style="text-align: right;" placeholder="טלפון" id="טלפון" type="number" />
 
         <button type="submit" class="btn btn-success w-100 mb-2">שמור</button>
         <button id="inspectBtn" type="button" class="btn btn-success w-100 mb-2">צפייה</button>
