@@ -14,7 +14,7 @@
 <body class="p-4 bg-light">
   <!-- Version label in top-right corner -->
   <div style="position: absolute; top: 0.75rem; right: 1rem; z-index: 9999;">
-    <small style="font-size: 0.75rem; color: gray;">1.0.7</small>
+    <small style="font-size: 0.75rem; color: gray;">1.0.8</small>
   </div>
 
   <div class="container">
@@ -52,7 +52,7 @@
           <option>נופר</option>
         </select>
 
-        <input class="form-control mb-2" placeholder="מספר צופר" id="מספר צופר" />
+        <input class="form-control mb-2" placeholder="מספר צופר" id="מספר צופר" type="number" />
 
         <!-- מיגון -->
         <select class="form-control mb-2" id="מיגון">
@@ -65,9 +65,9 @@
           <option>(בחירת כמות)</option>
         </select>
 
-        <input class="form-control mb-2" placeholder="כמות" id="כמות" />
-        <input class="form-control mb-2" placeholder="שם המפקד" id="שם המפקד" />
-        <input class="form-control mb-3" placeholder="טלפון" id="טלפון" />
+        <input class="form-control mb-2" placeholder="כמות" id="כמות" type="number" />
+        <input class="form-control mb-2" placeholder="שם המפקד" id="שם המפקד" pattern="[A-Za-zא-ת]+" title="Text only" />
+        <input class="form-control mb-3" placeholder="טלפון" id="טלפון" type="number" />
 
         <button type="submit" class="btn btn-success w-100 mb-2">שמור</button>
         <button id="inspectBtn" type="button" class="btn btn-success w-100 mb-2">צפייה</button>
@@ -93,6 +93,31 @@
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js');
     }
+  </script>
+
+  <script>
+    document.getElementById("reportForm").addEventListener("submit", function (e) {
+      const numFields = ["מספר צופר", "כמות", "טלפון"];
+      let valid = true;
+
+      numFields.forEach(id => {
+        const value = document.getElementById(id).value.trim();
+        if (!/^\d+$/.test(value)) {
+          valid = false;
+          alert(`בשדה "${id}" ניתן להזין רק מספרים.`);
+        }
+      });
+
+      const nameField = document.getElementById("שם המפקד").value.trim();
+      if (!/^[A-Za-zא-ת ]+$/.test(nameField)) {
+        valid = false;
+        alert(`בשדה "שם המפקד" ניתן להזין רק אותיות ורווחים.`);
+      }
+
+      if (!valid) {
+        e.preventDefault();
+      }
+    });
   </script>
 </body>
 </html>
