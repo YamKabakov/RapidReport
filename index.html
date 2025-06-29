@@ -14,7 +14,7 @@
 <body class="p-4 bg-light">
   <!-- Version label in top-right corner -->
   <div style="position: absolute; top: 0.75rem; right: 1rem; z-index: 9999;">
-    <small style="font-size: 0.75rem; color: gray;">1.0.11</small>
+    <small style="font-size: 0.75rem; color: gray;">1.0.12</small>
   </div>
 
   <div class="container">
@@ -72,6 +72,9 @@
         <button type="submit" class="btn btn-success w-100 mb-2">שמור</button>
         <button id="inspectBtn" type="button" class="btn btn-success w-100 mb-2">צפייה</button>
         <button id="downloadBtn" type="button" class="btn btn-success w-100 mb-2">להורדה</button>
+        <input type="file" id="importFile" accept=".json" class="form-control mb-2" />
+        <button id="importBtn" type="button" class="btn btn-secondary w-100 mb-2">ייבוא נתונים</button>
+        <button id="exportBtn" type="button" class="btn btn-secondary w-100 mb-2">ייצוא JSON</button>
       </form>
     </div>
 
@@ -94,30 +97,41 @@
       navigator.serviceWorker.register('service-worker.js');
     }
   </script>
+<script>
+  // EXPORT DATA AS JSON FILE
+  document.getElementById("exportBtn").addEventListener("click", () => {
+    const data = localStorage.getItem("rapidreport_data") || "[]";
+    const blob = new Blob([data], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "rapidreport_backup.json";
+    a.click();
+  });
 
-  <!-- <script>
-    document.getElementById("reportForm").addEventListener("submit", function (e) {
-      const numFields = ["מספר צופר", "כמות", "טלפון"];
-      let valid = true;
+  // IMPORT JSON FILE TO LOCALSTORAGE
+  document.getElementById("importBtn").addEventListener("click", () => {
+    const file = document.getElementById("importFile").files[0];
+    if (!file) {
+      alert("נא לבחור קובץ JSON קודם");
+      return;
+    }
 
-      numFields.forEach(id => {
-        const value = document.getElementById(id).value.trim();
-        if (!/^\d+$/.test(value)) {
-          valid = false;
-          alert(`בשדה "${id}" ניתן להזין רק מספרים.`);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const json = JSON.parse(e.target.result);
+        if (Array.isArray(json)) {
+          localStorage.setItem("rapidreport_data", JSON.stringify(json));
+          alert("הנתונים יובאו בהצלחה! רענן את הדף לצפייה.");
+        } else {
+          alert("פורמט קובץ שגוי.");
         }
-      });
-
-      const nameField = document.getElementById("שם המפקד").value.trim();
-      if (!/^[A-Za-zא-ת ]+$/.test(nameField)) {
-        valid = false;
-        alert(`בשדה "שם המפקד" ניתן להזין רק אותיות ורווחים.`);
+      } catch {
+        alert("התרחשה שגיאה בקריאת הקובץ.");
       }
-
-      if (!valid) {
-        e.preventDefault();
-      }
-    });
-  </script> -->
+    };
+    reader.readAsText(file);
+  });
+</script>
 </body>
 </html>
