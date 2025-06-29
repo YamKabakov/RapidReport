@@ -54,6 +54,8 @@ function renderTable() {
 
   const table = document.createElement("table");
   table.className = "table table-bordered table-striped text-center align-middle";
+  table.style.tableLayout = "auto";
+  table.style.width = "100%";
 
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
@@ -95,6 +97,7 @@ function renderTable() {
       if (isDropdown) {
         input = document.createElement("select");
         input.className = "form-select form-select-sm text-center";
+        input.style.width = "100%";
         input.disabled = true;
         input.dataset.key = h;
 
@@ -117,6 +120,7 @@ function renderTable() {
         input.type = "text";
         input.value = row[h];
         input.className = "form-control form-control-sm text-center";
+        input.style.width = "100%";
         input.dataset.key = h;
         input.disabled = true;
       }
