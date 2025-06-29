@@ -225,6 +225,13 @@ document.getElementById("reportForm").addEventListener("submit", function (e) {
 // -------------------------------------
 document.getElementById("downloadBtn").addEventListener("click", function () {
   const worksheet = XLSX.utils.json_to_sheet(rows, { header: headers });
+  worksheet['!cols'] = headers.map(header => {
+    const maxLen = Math.max(
+      header.length,
+      ...rows.map(row => (row[header] ? row[header].toString().length : 0))
+    );
+    return { wch: maxLen + 2 }; // add padding
+  });
   XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
   const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
   const blob = new Blob([wbout], { type: "application/octet-stream" });
