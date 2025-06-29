@@ -14,7 +14,7 @@
 <body class="p-4 bg-light">
   <!-- Version label in top-right corner -->
   <div style="position: absolute; top: 0.75rem; right: 1rem; z-index: 9999;">
-    <small style="font-size: 0.75rem; color: gray;">1.0.24</small>
+    <small style="font-size: 0.75rem; color: gray;">1.0.25</small>
   </div>
 
   <div class="container">
@@ -93,14 +93,18 @@
     <div id="inspectTable" class="table-responsive text-center" style="overflow-x: auto;">
       <style>
         #inspectTable table {
-          table-layout: auto !important;
+          table-layout: fixed;
           width: 100%;
         }
         #inspectTable th,
         #inspectTable td {
-          white-space: normal;
-          word-wrap: break-word;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
           padding: 0.5rem;
+        }
+        #inspectTable td {
+          max-width: 180px;
         }
       </style>
     </div>
