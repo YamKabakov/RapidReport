@@ -14,7 +14,7 @@
 <body class="p-4 bg-light">
   <!-- Version label in top-right corner -->
   <div style="position: absolute; top: 0.75rem; right: 1rem; z-index: 9999;">
-    <small style="font-size: 0.75rem; color: gray;">1.0.18</small>
+    <small style="font-size: 0.75rem; color: gray;">1.0.19</small>
   </div>
 
   <div class="container">
@@ -22,7 +22,10 @@
 
     <!-- ==== Form View ==== -->
     <div id="formView">
-      <h1 class="text-center mb-3" style="color: green; font-weight: bold;">RAPIDREPORT📝</h1>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <button onclick="location.reload()" class="btn btn-sm btn-outline-dark">🔄 רענן</button>
+        <h1 class="text-center flex-grow-1" style="color: green; font-weight: bold;">RAPIDREPORT📝</h1>
+      </div>
 
       <form id="reportForm" class="mb-3">
         <input class="form-control mb-2" style="text-align: right;" placeholder="תאריך" id="תאריך" />
@@ -83,9 +86,9 @@
 
   <!-- ==== Inspect View ==== -->
   <div id="inspectView" style="display: none;">
-    <div class="d-flex justify-content-start gap-2 mb-3">
+    <div class="d-flex justify-content-start gap-2 mb-3" style="justify-content: flex-start;">
+      <button id="backBtn" class="btn btn-sm btn-outline-dark">⬅</button>
       <button onclick="location.reload()" class="btn btn-sm btn-outline-dark">🔄</button>
-      <button id="backBtn" class="btn btn-sm btn-secondary">⬅</button>
     </div>
     <div id="inspectTable" class="table-responsive"></div>
   </div>
